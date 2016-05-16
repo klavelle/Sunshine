@@ -27,15 +27,21 @@ public class MainActivity extends ActionBarActivity {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
+    public String mLocation;
+
+    public static final String FORECASTFRAGMENT_TAG = "forecast_fragment";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
                     .commit();
         }
+
+        mLocation = Utility.getPreferredLocation(this);
     }
 
     @Override
@@ -82,6 +88,17 @@ public class MainActivity extends ActionBarActivity {
             startActivity(intent);
         } else {
             Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mLocation != Utility.getPreferredLocation(this)) {
+            ForecastFragment fFrag = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+            fFrag.onLocationChanged();
+
+            mLocation = Utility.getPreferredLocation(this);
         }
     }
 }
